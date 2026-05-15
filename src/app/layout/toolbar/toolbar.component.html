@@ -1,0 +1,15 @@
+<mat-toolbar>
+  <mat-toolbar-row>
+    <button mat-icon-button (click)="snav.toggle()" aria-label="Toggle menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="app-title">TrackShare</span>
+    <span class="spacer"></span>
+    <button mat-icon-button [matBadge]="notif.unreadCount() || null" matBadgeSize="small" matBadgeColor="warn" (click)="notif.refreshCount(); openNotifications()" aria-label="Notifications">
+      <mat-icon>notifications</mat-icon>
+    </button>
+    <button mat-icon-button aria-label="Settings">
+      <mat-icon>settings</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>

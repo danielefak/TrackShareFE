@@ -1,0 +1,173 @@
+<div class="home-container">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+  </div>
+
+  <app-transaction-filter (filterChange)="onFilterChange($event)" (resetAllEvent)="onResetAll()"></app-transaction-filter>
+
+  @if (filterOpen() && accounts().length > 0) {
+    <div class="accounts-breakdown">
+      <div class="breakdown-header">
+        Accounts
+        <span class="breakdown-actions">
+          <button class="unfilter-btn" (click)="toggleAllAccounts()" title="{{ selectedAccountIds().size === accounts().length ? 'Deselect all' : 'Select all' }}"><mat-icon>{{ selectedAccountIds().size === accounts().length ? 'deselect' : 'select_all' }}</mat-icon></button>
+        </span>
+      </div>
+      <table class="breakdown-table">
+        <thead>
+          <tr>
+            <th class="chk-col"></th>
+            <th>Account</th>
+            <th class="amt-col">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (acc of accounts(); track acc.id) {
+            <tr class="acc-row" [class.selected]="selectedAccountIds().has(acc.id)" (click)="toggleAccount(acc.id)">
+              <td class="chk-col" (click)="$event.stopPropagation()">
+                <input type="checkbox" [checked]="selectedAccountIds().has(acc.id)" (change)="toggleAccount(acc.id)">
+              </td>
+              <td class="acc-name-cell">
+                <span class="acc-icon" [class.positive]="acc.balance >= 0" [class.negative]="acc.balance < 0">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                </span>
+                <span class="acc-name">{{ acc.name }}</span>
+              </td>
+              <td class="amt-col" [class.positive]="acc.balance >= 0" [class.negative]="acc.balance < 0">
+                €{{ acc.balance | number:'1.2-2' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab() === 'transactions'" (click)="onTabChange('transactions')">Transactions</button>
+    <button class="tab-btn" [class.active]="activeTab() === 'expense'" (click)="onTabChange('expense')">Expenses</button>
+    <button class="tab-btn" [class.active]="activeTab() === 'income'" (click)="onTabChange('income')">Income</button>
+  </div>
+
+  <div [hidden]="activeTab() !== 'transactions'">
+    <div class="tab-pad">
+      <div class="transactions-section">
+        <div class="section-header">
+          <h2>All Transactions</h2>
+          @if (allSummary(); as s) {
+            <span class="item-count">{{ s.total_count }} total</span>
+          }
+        </div>
+        <app-transactions
+          [summary]="allSummary()"
+          [loading]="allLoading()"
+          [sortMonths]="sortMonths"
+          [sortDays]="sortDays"
+          [expandedIds]="expandedIds()"
+          [expandedDetailMap]="expandedDetailMap()"
+          (itemClick)="onItemClick($event)"
+          (dayClick)="onDayClick($event)"
+          (editItem)="onEditTransaction($event)"
+          (duplicateItem)="onDuplicateTransaction($event)"
+          (deleteItem)="onDeleteTransaction($event)"
+        ></app-transactions>
+        @if (allSummary(); as s) {
+          <mat-paginator
+            [length]="s.total_count"
+            [pageSize]="allPerPage()"
+            [pageIndex]="allPage()"
+            [pageSizeOptions]="[25, 50, 100]"
+            [showFirstLastButtons]="true"
+            (page)="onAllPageChange($event)"
+            aria-label="All transactions page">
+          </mat-paginator>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div [hidden]="activeTab() !== 'expense'">
+    <div class="tab-pad">
+      <app-charts
+        type="expense"
+        [filters]="filters()"
+        [resetKey]="resetKey()"
+        (subcategoryIdsChange)="onExpSubIdsChange($event)"
+      ></app-charts>
+      <div class="transactions-section">
+        <div class="section-header">
+          <h2>Transactions</h2>
+          @if (expenseSummary(); as s) {
+            <span class="item-count">{{ s.total_count }} total</span>
+          }
+        </div>
+        <app-transactions
+          [summary]="expenseSummary()"
+          [loading]="expenseLoading()"
+          [sortMonths]="sortMonths"
+          [sortDays]="sortDays"
+          [expandedIds]="expandedIds()"
+          [expandedDetailMap]="expandedDetailMap()"
+          (itemClick)="onItemClick($event)"
+          (dayClick)="onDayClick($event)"
+          (editItem)="onEditTransaction($event)"
+          (duplicateItem)="onDuplicateTransaction($event)"
+          (deleteItem)="onDeleteTransaction($event)"
+        ></app-transactions>
+        @if (expenseSummary(); as s) {
+          <mat-paginator
+            [length]="s.total_count"
+            [pageSize]="expensePerPage()"
+            [pageIndex]="expensePage()"
+            [pageSizeOptions]="[25, 50, 100]"
+            [showFirstLastButtons]="true"
+            (page)="onExpPageChange($event)"
+            aria-label="Expense page">
+          </mat-paginator>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div [hidden]="activeTab() !== 'income'">
+    <div class="tab-pad">
+      <app-charts
+        type="income"
+        [filters]="filters()"
+        [resetKey]="resetKey()"
+        (subcategoryIdsChange)="onIncSubIdsChange($event)"
+      ></app-charts>
+      <div class="transactions-section">
+        <div class="section-header">
+          <h2>Transactions</h2>
+          @if (incomeSummary(); as s) {
+            <span class="item-count">{{ s.total_count }} total</span>
+          }
+        </div>
+        <app-transactions
+          [summary]="incomeSummary()"
+          [loading]="incomeLoading()"
+          [sortMonths]="sortMonths"
+          [sortDays]="sortDays"
+          [expandedIds]="expandedIds()"
+          [expandedDetailMap]="expandedDetailMap()"
+          (itemClick)="onItemClick($event)"
+          (dayClick)="onDayClick($event)"
+          (editItem)="onEditTransaction($event)"
+          (duplicateItem)="onDuplicateTransaction($event)"
+          (deleteItem)="onDeleteTransaction($event)"
+        ></app-transactions>
+        @if (incomeSummary(); as s) {
+          <mat-paginator
+            [length]="s.total_count"
+            [pageSize]="incomePerPage()"
+            [pageIndex]="incomePage()"
+            [pageSizeOptions]="[25, 50, 100]"
+            [showFirstLastButtons]="true"
+            (page)="onIncPageChange($event)"
+            aria-label="Income page">
+          </mat-paginator>
+        }
+      </div>
+    </div>
+  </div>
+</div>

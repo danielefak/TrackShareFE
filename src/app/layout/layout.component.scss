@@ -1,0 +1,64 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidenav-container {
+  display: flex;
+  flex: 1;
+  padding-top: 64px;
+  height: 100%;
+}
+
+mat-sidenav-content {
+  flex: 1;
+  background: var(--mat-sys-surface-container-low);
+  min-height: calc(100vh - 64px);
+}
+
+mat-sidenav {
+  padding-top: 64px;
+  height: 100vh;
+  min-width: 250px;
+  max-width: 280px;
+  border-right: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+}
+
+.main {
+  padding: 32px;
+  max-width: var(--page-max-width, 900px);
+  margin: 0 auto;
+  min-height: calc(100vh - 128px);
+}
+
+.fab-button {
+  position: fixed;
+  bottom: 72px;
+  right: 20px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 16px;
+    padding-bottom: 72px;
+  }
+
+  mat-sidenav {
+    min-width: 260px;
+  }
+
+  .fab-button {
+    bottom: 76px;
+    right: 16px;
+  }
+}

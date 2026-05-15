@@ -1,0 +1,27 @@
+  <div class="container">  
+    <!-- Toolbar -->
+    <ToolbarComponent class="toolbar" [snav]="snav"></ToolbarComponent>
+
+    <!-- Main Content Area -->
+      <mat-sidenav-container class="sidenav-container" >
+        <mat-sidenav #snav [autoFocus]="false" [mode]="isMobile() ? 'over' : 'side'">
+          <app-sidebar [sidenav]="snav" [isMobile]="isMobile()"></app-sidebar>
+        </mat-sidenav>
+
+        <mat-sidenav-content class="sidenav-content">
+          <div class="main">
+            <router-outlet></router-outlet>
+
+      @if (router.isActive('/home', true)) {
+        <button mat-fab class="fab-button" aria-label="Add" (click)="openAddTransaction()">
+          <mat-icon>add</mat-icon>
+        </button>
+      }
+  </div>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
+     
+
+    <!-- Footer --> 
+    <app-footer class="footer" [snav]="snav" [isMobile]="isMobile()"></app-footer>
+  </div>

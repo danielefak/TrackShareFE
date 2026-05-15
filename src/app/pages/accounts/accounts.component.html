@@ -1,0 +1,92 @@
+<div class="accounts-page">
+  <div class="page-header">
+    <div>
+      <h1>Accounts</h1>
+      <p class="page-subtitle">Manage your accounts</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="openAddFriendDialog()">
+        <mat-icon>person_add</mat-icon> Add Friend
+      </button>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon> New
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner></div>
+  } @else if (accounts().length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">account_balance</mat-icon>
+      <h3>No accounts yet</h3>
+      <p>Create your first account or add a friend to start tracking finances.</p>
+    </div>
+  } @else {
+    <div class="total-line">
+      <span class="total-label">
+        <button class="select-all-btn" (click)="toggleAll()" matTooltip="{{ allSelected() ? 'Deselect all' : 'Select all' }}">
+          <mat-icon>{{ allSelected() ? 'deselect' : 'select_all' }}</mat-icon>
+        </button>
+        Total
+      </span>
+      <span class="total-amount" [class.positive]="selectedTotal() >= 0" [class.negative]="selectedTotal() < 0">€{{ selectedTotal() | number:'1.2-2' }}</span>
+      @if (selectedIds().size !== accounts().length) {
+        <span class="total-sub">({{ selectedIds().size }} selected)</span>
+      }
+    </div>
+
+    <div class="chart-section">
+      <div class="period-line">
+        <button mat-icon-button (click)="navMonth(-12)" matTooltip="Previous year"><mat-icon>keyboard_double_arrow_left</mat-icon></button>
+        <button mat-icon-button (click)="navMonth(-1)" matTooltip="Previous month"><mat-icon>chevron_left</mat-icon></button>
+        <span class="period-label">{{ periodLabel() }}</span>
+        <button mat-icon-button (click)="navMonth(1)" matTooltip="Next month"><mat-icon>chevron_right</mat-icon></button>
+        <button mat-icon-button (click)="navMonth(12)" matTooltip="Next year"><mat-icon>keyboard_double_arrow_right</mat-icon></button>
+      </div>
+
+      @if (chartLoading()) {
+        <div class="chart-loading"><mat-progress-spinner mode="indeterminate" diameter="24"></mat-progress-spinner></div>
+      } @else if (hasSelection() && chartData()) {
+        <apx-chart
+          [series]="lineSeries"
+          [chart]="lineChartOptions"
+          [xaxis]="lineXaxis"
+          [yaxis]="lineYaxis"
+          [fill]="lineFill"
+          [stroke]="lineStroke"
+          [colors]="lineColors"
+          [legend]="lineLegend"
+          [dataLabels]="lineDataLabels"
+          [tooltip]="lineTooltip"
+        ></apx-chart>
+      } @else if (!chartLoading() && !hasSelection()) {
+        <div class="chart-empty">Select accounts above to see the balance trend.</div>
+      }
+    </div>
+
+    @if (accounts().length > 0) {
+      <div class="accounts-list" cdkDropList (cdkDropListDropped)="drop($event)">
+        @for (account of accounts(); track account.id; let i = $index) {
+          <div class="acc-card" cdkDrag [cdkDragStartDelay]="200" [class.is-selected]="selectedIds().has(account.id)" [style.animation-delay]="i * 0.03 + 's'">
+            <div class="card-accent" [class.positive]="account.balance >= 0" [class.negative]="account.balance < 0"></div>
+            <div class="card-header">
+              <input type="checkbox" class="acc-checkbox" [checked]="selectedIds().has(account.id)" (change)="toggleAccount(account.id)">
+              @if (account.friend_account_id !== -1) {
+                <mat-icon class="acc-type-icon">group</mat-icon>
+              } @else {
+                <mat-icon class="acc-type-icon">account_balance</mat-icon>
+              }
+              <a [routerLink]="['/accounts', account.id]" class="acc-name">{{ account.name }}</a>
+              <span class="acc-balance" [class.positive]="account.balance >= 0" [class.negative]="account.balance < 0">€{{ account.balance | number:'1.2-2' }}</span>
+              <div class="acc-actions">
+                <button mat-icon-button (click)="openEditDialog(account)" matTooltip="Edit" class="sm-btn"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="deleteAccount(account)" matTooltip="Delete" class="sm-btn"><mat-icon>delete</mat-icon></button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

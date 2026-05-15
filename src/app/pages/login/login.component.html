@@ -1,0 +1,29 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="images/logo.png" alt="TrackShare" class="logo" />
+      <h1>TrackShare</h1>
+      <p class="subtitle">Welcome back</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="auth-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <mat-icon matIconPrefix>email</mat-icon>
+        <input matInput type="text" formControlName="username" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <mat-icon matIconPrefix>lock</mat-icon>
+        <input matInput type="password" formControlName="password" required>
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" class="submit-btn">Sign In</button>
+    </form>
+
+    <p class="auth-footer">
+      Don't have an account? <a routerLink="/signin">Create one</a>
+    </p>
+  </div>
+</div>

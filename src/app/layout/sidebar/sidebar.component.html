@@ -1,0 +1,38 @@
+<div class="sidebar-header">
+
+      <img src="images/logo.png" alt="Logo" class="logo"  />
+      <div class="darkModeButton" mat-flat-button (click)="toggleDarkMode()">
+        <mat-icon>{{ isDarkMode() ? 'wb_sunny' : 'nights_stay' }}</mat-icon>
+      </div>
+      
+      <div class="color">
+        <mat-icon [matMenuTriggerFor]="menu" class="icon-trigger">palette</mat-icon>
+      </div> 
+      
+      <mat-menu #menu="matMenu">
+        @for (item of colorPalettes; track item){
+        <button mat-menu-item (click)="changeColorPalette(item.value)"> {{item.value}}</button>
+        }
+      </mat-menu>
+      
+      
+
+
+    <div class="header-text">
+        <h2>TrackShare</h2>
+        <p>Manage your finances</p>
+    </div>
+</div>
+<mat-nav-list>
+    @for (item of menuItems(); track item) {
+      <a mat-list-item [disableRipple]="true" [routerLink]="item.route"
+       routerLinkActive="active-link"
+       (click)="item.action()">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.title }}</span>
+      </a>
+    }
+
+
+
+  </mat-nav-list>

@@ -1,0 +1,134 @@
+@use '@angular/material' as mat;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+html {
+  font-family: 'Nunito', 'Helvetica Neue', sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--mat-sys-background);
+  color: var(--mat-sys-on-surface);
+  font-family: 'Nunito', 'Helvetica Neue', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @include mat.theme((
+    color: mat.$azure-palette,
+    typography: Nunito,
+    density: 0,
+  ));
+}
+
+body.darkMode {
+  color-scheme: dark;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      theme-type: dark,
+    ),
+    typography: Nunito,
+    density: 0,
+  ));
+}
+
+$palettes: (
+  "orange": mat.$orange-palette,
+  "violet": mat.$violet-palette,
+  "green": mat.$green-palette,
+  "blue": mat.$blue-palette,
+  "yellow": mat.$yellow-palette,
+  "cyan": mat.$cyan-palette,
+  "magenta": mat.$magenta-palette,
+  "red": mat.$red-palette,
+  "chartreuse": mat.$chartreuse-palette,
+  "spring-green": mat.$spring-green-palette,
+  "rose": mat.$rose-palette,
+);
+
+@each $name, $palette in $palettes {
+  $s: "" + $name;
+  body.#{$s} {
+    @include mat.theme((color: (primary: $palette)));
+  }
+
+  body.#{$s}.darkMode {
+    @include mat.theme((color: (primary: $palette, theme-type: dark)));
+  }
+}
+
+body {
+  --page-max-width: 900px;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body { touch-action: pan-y; }
+
+@media (max-width: 600px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .footer-container {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 480px) {
+  .mat-mdc-dialog-surface {
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  .mat-mdc-dialog-container {
+    --mdc-dialog-container-shape: 12px 12px 0 0;
+  }
+}
+
+mat-progress-spinner {
+  position: absolute !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mat-sys-outline-variant);
+  border-radius: 3px;
+}
+
+[cdkDrag]:active {
+  box-shadow: var(--mat-sys-level2);
+}
+
+.cdk-drag-dragging {
+  box-shadow: 0 0 0 2px var(--mat-sys-primary), var(--mat-sys-level3) !important;
+  z-index: 1000 !important;
+  opacity: 0.85;
+}
+
+.cdk-drag-preview {
+  box-shadow: var(--mat-sys-level3);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.25;
+  border: 2px dashed var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}

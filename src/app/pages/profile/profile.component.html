@@ -1,0 +1,82 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1>Profile</h1>
+    <p class="page-subtitle">Manage your account settings</p>
+  </div>
+
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>person</mat-icon>
+      <mat-card-title>Personal Information</mat-card-title>
+      <mat-card-subtitle>Update your name and email</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="first_name" [placeholder]="profile?.first_name || ''">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" [placeholder]="profile?.email || ''">
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="notify" color="primary" class="notify-toggle">
+          Enable push notifications
+        </mat-slide-toggle>
+
+        <button mat-flat-button color="primary" type="submit">Save Changes</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>vpn_key</mat-icon>
+      <mat-card-title>Friend Key</mat-card-title>
+      <mat-card-subtitle>Share this key with friends to connect</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="friend-key-section">
+        <div class="key-display">
+          <code class="key-value">{{ profile?.friend_key || '---' }}</code>
+          <button mat-icon-button (click)="copyKey()" matTooltip="Copy key" class="key-btn">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button mat-icon-button (click)="refreshKey()" matTooltip="Generate new key" class="key-btn">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>lock</mat-icon>
+      <mat-card-title>Change Password</mat-card-title>
+      <mat-card-subtitle>Update your password</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="profile-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Current Password</mat-label>
+          <input matInput type="password" formControlName="old_password">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>New Password</mat-label>
+          <input matInput type="password" formControlName="new_password">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirm New Password</mat-label>
+          <input matInput type="password" formControlName="confirm_password">
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit">Update Password</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

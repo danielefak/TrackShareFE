@@ -1,0 +1,231 @@
+.home-container {
+  animation: fadeIn 0.3s ease-out;
+  padding-bottom: 64px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.accounts-breakdown {
+  background: var(--mat-sys-surface-container-low);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.accounts-breakdown .breakdown-header {
+  padding: 7px 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface);
+  user-select: none;
+  background: var(--mat-sys-surface-container-high);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.accounts-breakdown .breakdown-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.accounts-breakdown .breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.accounts-breakdown .breakdown-table thead th {
+  text-align: left;
+  padding: 5px 10px;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container-high);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.accounts-breakdown .breakdown-table tbody td {
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface);
+}
+
+.accounts-breakdown .chk-col {
+  width: 28px;
+  text-align: center;
+}
+
+.accounts-breakdown .chk-col input[type="checkbox"] {
+  accent-color: var(--mat-sys-primary);
+  margin: 0;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.accounts-breakdown .unfilter-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--mat-sys-primary);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  outline: none;
+}
+
+.accounts-breakdown .unfilter-btn:hover {
+  background: var(--mat-sys-primary-container);
+}
+
+.accounts-breakdown .acc-row {
+  transition: background 0.1s ease;
+}
+
+.accounts-breakdown .acc-row:hover {
+  background: var(--mat-sys-surface-container);
+}
+
+.accounts-breakdown .acc-row.selected {
+  background: var(--mat-sys-primary-container);
+}
+
+.accounts-breakdown .acc-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.accounts-breakdown .acc-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.accounts-breakdown .acc-icon .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.accounts-breakdown .acc-name {
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.accounts-breakdown .amt-col {
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.accounts-breakdown .amt-col.positive { color: #22bb33; }
+.accounts-breakdown .amt-col.negative { color: var(--mat-sys-error); }
+
+@media (max-width: 600px) {
+  .accounts-breakdown .breakdown-table tbody td,
+  .accounts-breakdown .breakdown-table thead th {
+    padding: 4px 6px;
+  }
+}
+
+.tab-pad {
+  padding-top: 16px;
+}
+
+.transactions-section {
+  margin-top: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--mat-sys-on-surface);
+}
+
+.item-count {
+  font-size: 0.8125rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+mat-paginator {
+  margin-top: 8px;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--mat-sys-outline-variant);
+  margin-bottom: 0;
+  justify-content: center;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  flex: 1;
+  text-align: center;
+}
+
+.tab-btn:hover {
+  color: var(--mat-sys-on-surface);
+}
+
+.tab-btn.active {
+  color: var(--mat-sys-primary);
+  border-bottom-color: var(--mat-sys-primary);
+}
+
+.sub-tab-bar {
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+
+.sub-tab-bar .tab-btn {
+  font-size: 0.8125rem;
+  padding: 8px 16px;
+}

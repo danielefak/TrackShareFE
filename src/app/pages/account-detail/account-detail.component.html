@@ -1,0 +1,52 @@
+<div class="detail-page">
+  <button mat-stroked-button routerLink="/accounts" class="back-btn">
+    <mat-icon>arrow_back</mat-icon> All Accounts
+  </button>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+    </div>
+  }
+
+  @if (!loading() && account(); as acc) {
+    <div class="account-hero">
+      <div class="hero-top">
+        <div class="hero-info">
+          <h1>{{ acc.name }}</h1>
+          <p class="hero-subtitle">Initial balance: €{{ acc.initial_balance | number:'1.2-2' }}</p>
+        </div>
+        <div class="hero-balance" [class.positive]="acc.balance >= 0" [class.negative]="acc.balance < 0">
+          €{{ acc.balance | number:'1.2-2' }}
+        </div>
+      </div>
+    </div>
+
+    <section class="transactions-section">
+      <h2>Transactions</h2>
+
+      @if (acc.transactions.length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">receipt_long</mat-icon>
+          <p>No transactions for this account.</p>
+        </div>
+      } @else {
+        <div class="tx-list">
+          @for (tx of acc.transactions; track tx.id) {
+            <div class="tx-item" [class.is-income]="tx.value >= 0" [class.is-expense]="tx.value < 0">
+              <div class="item-accent"></div>
+              <div class="item-body">
+                <span class="item-title">{{ tx.title }}</span>
+                <span class="item-tags">{{ tx.category_name }} · {{ tx.subcategory_name }}</span>
+                <span class="item-date">{{ tx.date | date:'mediumDate' }}</span>
+              </div>
+              <span class="item-amount" [class.positive]="tx.value >= 0" [class.negative]="tx.value < 0">
+                {{ (tx.value >= 0 ? '+' : '') + (tx.value | currency:'EUR') }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
