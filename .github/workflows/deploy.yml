@@ -35,6 +35,9 @@ jobs:
       - name: Add .nojekyll
         run: touch dist/fets/browser/.nojekyll
 
+      - name: Add 404.html for SPA routing
+        run: cp dist/fets/browser/index.html dist/fets/browser/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
