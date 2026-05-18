@@ -67,25 +67,34 @@ mat-nav-list {
   }
 }
 
-.darkModeButton {
-  background: transparent;
-  cursor: pointer;
+.icon-row {
   position: absolute;
   top: 24px;
   right: 8px;
-  border: none;
-  padding: 8px;
+  display: flex;
+  gap: 4px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   color: var(--mat-sys-on-surface-variant);
-}
+  transition: background 0.12s;
 
-.color {
-  position: absolute;
-  top: 24px;
-  right: 44px;
-  color: var(--mat-sys-on-surface-variant);
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
 }
 
 @media (max-width: 600px) {

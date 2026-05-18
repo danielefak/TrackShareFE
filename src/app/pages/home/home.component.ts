@@ -48,8 +48,18 @@ export class HomeComponent implements OnInit {
   get selectedAccountIds() { return this.fs.selectedAccountIds; }
   get filterOpen() { return this.fs.filterOpen; }
 
+  private _currentMonth(): { startDate: string; endDate: string } {
+    const now = new Date();
+    const s = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const e = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}-${String(last.getDate()).padStart(2, '0')}`;
+    return { startDate: s, endDate: e };
+  }
+
   filters = signal<TransactionFilters>({
-    startDate: '', endDate: '', categoryIds: [], subcategoryIds: [],
+    ...this._currentMonth(),
+    categoryIds: [],
+    subcategoryIds: [],
     search: '',
   });
 

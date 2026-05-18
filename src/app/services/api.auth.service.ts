@@ -5,6 +5,7 @@ import { Observable, of } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { NotificationService } from './notification.service';
+import { DarkModeService } from './dark-mode.service';
 
 export interface Profile {
   id: number;
@@ -13,6 +14,8 @@ export interface Profile {
   is_active: boolean;
   notify: boolean;
   friend_key?: string;
+  theme?: string;
+  color?: string;
 }
 
 @Injectable({
@@ -23,6 +26,7 @@ export class AuthService {
   private apiUrl = this.env.apiUrl;
 
   private notif = inject(NotificationService);
+  private darkMode = inject(DarkModeService);
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -32,7 +36,7 @@ export class AuthService {
         localStorage.setItem('access_token', response.access_token);
         return response;
       }),
-      tap(() => { this.notif.subscribe(); this.notif.refreshCount(); })
+      tap(() => { this.notif.subscribe(); this.darkMode.init(); })
     );
   }
 
@@ -42,7 +46,7 @@ export class AuthService {
         localStorage.setItem('access_token', response.access_token);
         return response;
       }),
-      tap(() => { this.notif.subscribe(); this.notif.refreshCount(); })
+      tap(() => { this.notif.subscribe(); this.darkMode.init(); })
     );
   }
 
@@ -67,7 +71,7 @@ export class AuthService {
     return this.http.get<Profile>(`${this.apiUrl}/v1/profile`);
   }
 
-  updateProfile(data: { first_name?: string; email?: string; notify?: boolean }): Observable<Profile> {
+  updateProfile(data: { first_name?: string; email?: string; notify?: boolean; theme?: string; color?: string }): Observable<Profile> {
     return this.http.put<Profile>(`${this.apiUrl}/v1/profile`, data);
   }
 

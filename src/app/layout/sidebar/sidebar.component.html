@@ -1,13 +1,14 @@
 <div class="sidebar-header">
 
       <img src="images/logo.png" alt="Logo" class="logo"  />
-      <div class="darkModeButton" mat-flat-button (click)="toggleDarkMode()">
-        <mat-icon>{{ isDarkMode() ? 'wb_sunny' : 'nights_stay' }}</mat-icon>
+      <div class="icon-row">
+        <div class="icon-btn" (click)="toggleDarkMode()">
+          <mat-icon>{{ isDarkMode() ? 'wb_sunny' : 'nights_stay' }}</mat-icon>
+        </div>
+        <div class="icon-btn" [matMenuTriggerFor]="menu">
+          <mat-icon>palette</mat-icon>
+        </div>
       </div>
-      
-      <div class="color">
-        <mat-icon [matMenuTriggerFor]="menu" class="icon-trigger">palette</mat-icon>
-      </div> 
       
       <mat-menu #menu="matMenu">
         @for (item of colorPalettes; track item){

@@ -27,7 +27,7 @@ import { Category } from '../../models/category.model';
     <h2 mat-dialog-title>{{ isEdit() ? 'Edit Category' : 'New Category' }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form">
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Category Name</mat-label>
           <input matInput formControlName="name" placeholder="e.g. Shopping" />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
@@ -35,7 +35,7 @@ import { Category } from '../../models/category.model';
           }
         </mat-form-field>
         @if (!isEdit()) {
-          <mat-form-field appearance="outline" class="full-width">
+          <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
             <mat-label>Type</mat-label>
             <mat-select formControlName="is_expense">
               <mat-option [value]="0">Expense</mat-option>
@@ -53,8 +53,10 @@ import { Category } from '../../models/category.model';
     </mat-dialog-actions>
   `,
   styles: [`
-    .full-width { width: 100%; margin-bottom: 12px; }
-    mat-dialog-content { min-width: 320px; }
+    .full-width { width: 100%; margin-bottom: 20px; }
+    .full-width:last-child { margin-bottom: 0; }
+    mat-dialog-content { min-width: 360px; }
+    form { padding-top: 6px; }
   `],
 })
 export class AddCategoryDialogComponent {
@@ -76,10 +78,25 @@ export class AddCategoryDialogComponent {
     if (this.form.invalid) return;
     this.saving.set(true);
     if (this.isEdit()) {
-      this.categoryService.update(this.data!.id, { name: this.form.value.name! }).subscribe({
+      const newName = this.form.value.name!;
+      this.categoryService.update(this.data!.id, { name: newName }).subscribe({
         next: () => {
-          this.snackbar.open('Category updated', 'Close', { verticalPosition: 'top' });
-          this.dialogRef.close(true);
+          const mainSub = this.data!.subcategories?.find(s => s.is_main);
+          if (mainSub) {
+            this.categoryService.updateSubcategory(mainSub.id, { name: newName }).subscribe({
+              next: () => {
+                this.snackbar.open('Category updated', 'Close', { verticalPosition: 'top' });
+                this.dialogRef.close(true);
+              },
+              error: () => {
+                this.snackbar.open('Category updated, but subcategory rename failed', 'Close', { verticalPosition: 'top' });
+                this.dialogRef.close(true);
+              },
+            });
+          } else {
+            this.snackbar.open('Category updated', 'Close', { verticalPosition: 'top' });
+            this.dialogRef.close(true);
+          }
         },
         error: (err) => {
           this.saving.set(false);

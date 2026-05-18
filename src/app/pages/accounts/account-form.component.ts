@@ -25,14 +25,14 @@ import { Account } from '../../models/account.model';
     <h2 mat-dialog-title>{{ isEdit() ? 'Edit Account' : 'New Account' }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form">
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Account Name</mat-label>
           <input matInput formControlName="name" required />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <mat-error>Name is required</mat-error>
           }
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Initial Balance</mat-label>
           <input matInput type="number" formControlName="balance" />
         </mat-form-field>
@@ -45,12 +45,12 @@ import { Account } from '../../models/account.model';
       </button>
     </mat-dialog-actions>
   `,
-  styles: [
-    `
-      .full-width { width: 100%; margin-bottom: 12px; }
-      mat-dialog-content { min-width: 300px; }
-    `,
-  ],
+  styles: [`
+    .full-width { width: 100%; margin-bottom: 20px; }
+    .full-width:last-child { margin-bottom: 0; }
+    mat-dialog-content { min-width: 340px; }
+    form { padding-top: 6px; }
+  `],
 })
 export class AccountFormComponent {
   private fb = inject(FormBuilder);

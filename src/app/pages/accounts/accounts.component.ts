@@ -154,17 +154,17 @@ export class AccountsComponent implements OnInit {
   }
 
   openCreateDialog() {
-    const ref = this.dialog.open(AccountFormComponent, { width: '400px' });
+    const ref = this.dialog.open(AccountFormComponent, { width: '440px' });
     ref.afterClosed().subscribe((result) => { if (result) this.loadAccounts(); });
   }
 
   openEditDialog(account: Account) {
-    const ref = this.dialog.open(AccountFormComponent, { width: '400px', data: account });
+    const ref = this.dialog.open(AccountFormComponent, { width: '440px', data: account });
     ref.afterClosed().subscribe((result) => { if (result) this.loadAccounts(); });
   }
 
   openAddFriendDialog() {
-    const ref = this.dialog.open(AddFriendDialogComponent, { width: '420px' });
+    const ref = this.dialog.open(AddFriendDialogComponent, { width: '460px' });
     ref.afterClosed().subscribe((result) => { if (result) this.loadAccounts(); });
   }
 

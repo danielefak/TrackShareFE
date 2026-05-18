@@ -99,18 +99,7 @@ export class SidebarComponent {
   }
 
   changeColorPalette(color: string) {
-    const allPalettes = [
-      'azure', 'orange', 'violet', 'green', 'red', 'blue', 'yellow',
-      'cyan', 'magenta', 'chartreuse', 'spring-green', 'rose'
-    ];
-  
-    // Remove all color-related classes from the body
-    allPalettes.forEach(palette => {
-      document.body.classList.remove(palette);
-    });
-  
-    // Add the selected palette class
-    document.body.classList.add(color);
+    this.darkModeService.changeColor(color);
   }
 
 }

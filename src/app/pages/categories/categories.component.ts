@@ -57,14 +57,18 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
               <div class="categories-list" cdkDropList (cdkDropListDropped)="drop($event, 'expense')">
                 @for (cat of expenseCategories(); track cat.id) {
                   <div class="category-card" cdkDrag [cdkDragStartDelay]="200">
-                    <div class="card-header">
+                    <div class="card-header" (click)="toggle(cat.id)" role="button" tabindex="0">
+                      <mat-icon class="chevron">{{ expanded().has(cat.id) ? 'expand_more' : 'chevron_right' }}</mat-icon>
                       <span class="cat-name">{{ cat.name }}</span>
-                      <div class="cat-actions">
-                        <button mat-icon-button (click)="openAddSubcategory(cat)" matTooltip="Add subcategory">
-                          <mat-icon>add_circle_outline</mat-icon>
-                        </button>
+                      @if (cat.subcategories.length > 0) {
+                        <span class="subcount">{{ cat.subcategories.length }}</span>
+                      }
+                      <div class="cat-actions" (click)="$event.stopPropagation()">
                         <button mat-icon-button (click)="openEditDialog(cat)" matTooltip="Edit">
                           <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="openAddSubcategory(cat)" matTooltip="Add subcategory">
+                          <mat-icon>add_circle_outline</mat-icon>
                         </button>
                         @if (!cat.default) {
                           <button mat-icon-button (click)="deleteCategory(cat)" matTooltip="Delete">
@@ -73,16 +77,16 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
                         }
                       </div>
                     </div>
-                    @if (cat.subcategories.length > 0) {
+                    @if (expanded().has(cat.id) && cat.subcategories.length > 0) {
                       <div class="subcat-list">
                         @for (sub of cat.subcategories; track sub.id) {
                           <div class="subcat-item">
                             <span class="subcat-name" [class.is-main]="sub.is_main">{{ sub.name }}</span>
                             <div class="subcat-actions">
-                              <button mat-icon-button (click)="openEditSubcategory(sub, cat)" matTooltip="Edit" class="subcat-btn">
-                                <mat-icon>edit</mat-icon>
-                              </button>
                               @if (!sub.is_main) {
+                                <button mat-icon-button (click)="openEditSubcategory(sub, cat)" matTooltip="Edit" class="subcat-btn">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
                                 <button mat-icon-button (click)="deleteSubcategory(sub)" matTooltip="Remove" class="subcat-btn">
                                   <mat-icon>close</mat-icon>
                                 </button>
@@ -107,14 +111,18 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
               <div class="categories-list" cdkDropList (cdkDropListDropped)="drop($event, 'income')">
                 @for (cat of incomeCategories(); track cat.id) {
                   <div class="category-card" cdkDrag [cdkDragStartDelay]="200">
-                    <div class="card-header">
+                    <div class="card-header" (click)="toggle(cat.id)" role="button" tabindex="0">
+                      <mat-icon class="chevron">{{ expanded().has(cat.id) ? 'expand_more' : 'chevron_right' }}</mat-icon>
                       <span class="cat-name">{{ cat.name }}</span>
-                      <div class="cat-actions">
-                        <button mat-icon-button (click)="openAddSubcategory(cat)" matTooltip="Add subcategory">
-                          <mat-icon>add_circle_outline</mat-icon>
-                        </button>
+                      @if (cat.subcategories.length > 0) {
+                        <span class="subcount">{{ cat.subcategories.length }}</span>
+                      }
+                      <div class="cat-actions" (click)="$event.stopPropagation()">
                         <button mat-icon-button (click)="openEditDialog(cat)" matTooltip="Edit">
                           <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="openAddSubcategory(cat)" matTooltip="Add subcategory">
+                          <mat-icon>add_circle_outline</mat-icon>
                         </button>
                         @if (!cat.default) {
                           <button mat-icon-button (click)="deleteCategory(cat)" matTooltip="Delete">
@@ -123,16 +131,16 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
                         }
                       </div>
                     </div>
-                    @if (cat.subcategories.length > 0) {
+                    @if (expanded().has(cat.id) && cat.subcategories.length > 0) {
                       <div class="subcat-list">
                         @for (sub of cat.subcategories; track sub.id) {
                           <div class="subcat-item">
                             <span class="subcat-name" [class.is-main]="sub.is_main">{{ sub.name }}</span>
                             <div class="subcat-actions">
-                              <button mat-icon-button (click)="openEditSubcategory(sub, cat)" matTooltip="Edit" class="subcat-btn">
-                                <mat-icon>edit</mat-icon>
-                              </button>
                               @if (!sub.is_main) {
+                                <button mat-icon-button (click)="openEditSubcategory(sub, cat)" matTooltip="Edit" class="subcat-btn">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
                                 <button mat-icon-button (click)="deleteSubcategory(sub)" matTooltip="Remove" class="subcat-btn">
                                   <mat-icon>close</mat-icon>
                                 </button>
@@ -238,8 +246,24 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
     .card-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .card-header:focus-visible {
+      outline: 2px solid var(--mat-sys-primary);
+      outline-offset: -2px;
+    }
+
+    .chevron {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--mat-sys-on-surface-variant);
+      transition: transform 0.15s ease;
+      flex-shrink: 0;
     }
 
     .cat-name {
@@ -247,6 +271,17 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
       font-weight: 600;
       font-size: 0.9rem;
       color: var(--mat-sys-on-surface);
+    }
+
+    .subcount {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--mat-sys-on-surface-variant);
+      background: var(--mat-sys-surface-container);
+      padding: 2px 8px;
+      border-radius: 10px;
+      line-height: 1.4;
+      flex-shrink: 0;
     }
 
     .cat-actions {
@@ -338,6 +373,15 @@ export class CategoriesComponent implements OnInit {
   incomeCategories = signal<Category[]>([]);
   loading = signal(true);
   activeTab = signal(0);
+  expanded = signal<Set<number>>(new Set());
+
+  toggle(catId: number) {
+    this.expanded.update(s => {
+      const next = new Set(s);
+      if (next.has(catId)) next.delete(catId); else next.add(catId);
+      return next;
+    });
+  }
 
   ngOnInit() {
     this.loadAll();
@@ -389,7 +433,7 @@ export class CategoriesComponent implements OnInit {
 
   openAddSubcategory(cat: Category) {
     const ref = this.dialog.open(AddSubcategoryDialogComponent, {
-      width: '380px',
+      width: '420px',
       data: { categoryId: cat.id },
     });
     ref.afterClosed().subscribe((result) => {
@@ -399,7 +443,7 @@ export class CategoriesComponent implements OnInit {
 
   openEditDialog(cat: Category) {
     const ref = this.dialog.open(AddCategoryDialogComponent, {
-      width: '420px',
+      width: '460px',
       data: cat,
     });
     ref.afterClosed().subscribe((result) => {
@@ -409,7 +453,7 @@ export class CategoriesComponent implements OnInit {
 
   openEditSubcategory(sub: SubCategory, cat: Category) {
     const ref = this.dialog.open(AddSubcategoryDialogComponent, {
-      width: '380px',
+      width: '420px',
       data: { categoryId: cat.id, subcategory: sub },
     });
     ref.afterClosed().subscribe((result) => {

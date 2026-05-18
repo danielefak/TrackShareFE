@@ -24,28 +24,28 @@ import { FriendService } from '../../services/friend.service';
     <h2 mat-dialog-title>Add Friend</h2>
     <mat-dialog-content>
       <form [formGroup]="form">
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Account Name</mat-label>
           <input matInput formControlName="name" placeholder="e.g. Shared holiday" />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <mat-error>Name is required</mat-error>
           }
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Friend's Email</mat-label>
           <input matInput formControlName="email" type="email" placeholder="friend@email.com" />
           @if (form.get('email')?.invalid && form.get('email')?.touched) {
             <mat-error>Valid email is required</mat-error>
           }
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Friend's Key</mat-label>
           <input matInput formControlName="key" placeholder="e.g. ABC123DEF4" />
           @if (form.get('key')?.invalid && form.get('key')?.touched) {
             <mat-error>Key is required</mat-error>
           }
         </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Initial Balance (€)</mat-label>
           <input matInput formControlName="balance" type="number" />
         </mat-form-field>
@@ -59,8 +59,10 @@ import { FriendService } from '../../services/friend.service';
     </mat-dialog-actions>
   `,
   styles: [`
-    .full-width { width: 100%; margin-bottom: 12px; }
-    mat-dialog-content { min-width: 320px; }
+    .full-width { width: 100%; margin-bottom: 20px; }
+    .full-width:last-child { margin-bottom: 0; }
+    mat-dialog-content { min-width: 360px; }
+    form { padding-top: 6px; }
   `],
 })
 export class AddFriendDialogComponent {

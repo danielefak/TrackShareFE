@@ -30,7 +30,7 @@ export interface SubcategoryDialogData {
     <h2 mat-dialog-title>{{ isEdit() ? 'Edit Subcategory' : 'Add Subcategory' }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form">
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>Subcategory Name</mat-label>
           <input matInput formControlName="name" placeholder="e.g. Clothes" />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
@@ -47,8 +47,10 @@ export interface SubcategoryDialogData {
     </mat-dialog-actions>
   `,
   styles: [`
-    .full-width { width: 100%; margin-bottom: 12px; }
-    mat-dialog-content { min-width: 300px; }
+    .full-width { width: 100%; margin-bottom: 20px; }
+    .full-width:last-child { margin-bottom: 0; }
+    mat-dialog-content { min-width: 340px; }
+    form { padding-top: 6px; }
   `],
 })
 export class AddSubcategoryDialogComponent {

@@ -8,8 +8,5 @@
     <button mat-icon-button [matBadge]="notif.unreadCount() || null" matBadgeSize="small" matBadgeColor="warn" (click)="notif.refreshCount(); openNotifications()" aria-label="Notifications">
       <mat-icon>notifications</mat-icon>
     </button>
-    <button mat-icon-button aria-label="Settings">
-      <mat-icon>settings</mat-icon>
-    </button>
   </mat-toolbar-row>
 </mat-toolbar>
