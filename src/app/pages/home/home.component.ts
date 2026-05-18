@@ -11,7 +11,7 @@ import { AccountService } from '../../services/account.service';
 import { FilterStateService } from '../../services/filter-state.service';
 import { RefreshService } from '../../services/refresh.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SummaryResponse, TransactionFilters, MultiTransactionDetail } from '../../models/transaction-summary.model';
+import { SummaryResponse, MonthlySummary, DailySummary, TransactionFilters, MultiTransactionDetail } from '../../models/transaction-summary.model';
 import { Account } from '../../models/account.model';
 import { CommonModule, KeyValue } from '@angular/common';
 import { TransactionsComponent } from '../../components/transactions/transactions.component';
@@ -305,8 +305,46 @@ export class HomeComponent implements OnInit {
   onDeleteTransaction(mtId: number) {
     if (!window.confirm('Delete this transaction?')) return;
     this.transactionService.delete(mtId).subscribe({
-      next: () => { this.snackbar.open('Transaction deleted', 'Close', { duration: 2000 }); this.refresh.triggerTransactions(); this.loadAll(); },
+      next: () => {
+        this.snackbar.open('Transaction deleted', 'Close', { duration: 2000 });
+        this.removeFromSummary(this.allSummary, mtId);
+        this.removeFromSummary(this.expenseSummary, mtId);
+        this.removeFromSummary(this.incomeSummary, mtId);
+        this.expandedIds.update(s => { const n = new Set(s); n.delete(mtId); return n; });
+        this.expandedDetailMap.update(m => { const r = new Map(m); r.delete(mtId); return r; });
+        this.refresh.triggerTransactions();
+      },
       error: (e: any) => this.snackbar.open(e.error?.detail || 'Delete failed', 'Close', { duration: 3000 }),
+    });
+  }
+
+  private removeFromSummary(sig: ReturnType<typeof signal<SummaryResponse | null>>, mtId: number) {
+    const current = sig();
+    if (!current) return;
+
+    const newData: Record<string, MonthlySummary> = {};
+    for (const [month, ms] of Object.entries(current.data)) {
+      const newDays: Record<string, DailySummary> = {};
+      for (const [day, ds] of Object.entries(ms.days)) {
+        const newItems = ds.items.filter(i => i.id !== mtId);
+        if (newItems.length > 0) {
+          newDays[day] = { ...ds, items: newItems, balance: newItems.reduce((s, i) => s + i.balance, 0) };
+        }
+      }
+      if (Object.keys(newDays).length > 0) {
+        const pos = Object.values(newDays).reduce((s, d) => s + Math.max(0, d.balance), 0);
+        const neg = Object.values(newDays).reduce((s, d) => s + Math.min(0, d.balance), 0);
+        newData[month] = { pos, neg, total: pos + neg, days: newDays as unknown as { [day: number]: DailySummary } };
+      }
+    }
+
+    sig.set({
+      ...current,
+      data: newData as unknown as SummaryResponse['data'],
+      positive: Object.values(newData).reduce((s, m) => s + m.pos, 0),
+      negative: Object.values(newData).reduce((s, m) => s + m.neg, 0),
+      total: Object.values(newData).reduce((s, m) => s + m.total, 0),
+      total_count: current.total_count - 1,
     });
   }
 
