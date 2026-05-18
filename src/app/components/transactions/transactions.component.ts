@@ -106,7 +106,7 @@ import { MatIconModule } from '@angular/material/icon';
                                 </span>
                               </div>
                             }
-                          </div>
+                           </div>
                           }
                         }
                       </div>

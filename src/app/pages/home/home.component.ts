@@ -163,9 +163,30 @@ export class HomeComponent implements OnInit {
   loadAllTransactions() {
     this.allLoading.set(true);
     this.api.getSummary(this.allFilters(), this.allPage(), this.allPerPage())
-      .then(d => this.allSummary.set(d))
+      .then(d => {
+        this.allSummary.set(d);
+        this.prefetchDetails(d);
+      })
       .catch(e => this.snackbar.open(e.message, 'Close'))
       .finally(() => this.allLoading.set(false));
+  }
+
+  private prefetchDetails(summary: SummaryResponse) {
+    const ids: number[] = [];
+    for (const month of Object.values(summary.data)) {
+      for (const day of Object.values(month.days)) {
+        for (const item of day.items) {
+          if (!this.expandedDetailMap().has(item.id)) {
+            ids.push(item.id);
+          }
+        }
+      }
+    }
+    for (const id of ids) {
+      this.api.getMultiTransactionDetail(id).then(d => {
+        this.expandedDetailMap.update(m => { const r = new Map(m); r.set(id, d); return r; });
+      });
+    }
   }
 
   onFilterChange(f: TransactionFilters) {
@@ -214,14 +235,8 @@ export class HomeComponent implements OnInit {
   onItemClick(mtId: number) {
     if (this.expandedIds().has(mtId)) {
       this.expandedIds.update(s => { const n = new Set(s); n.delete(mtId); return n; });
-      this.expandedDetailMap.update(m => { const r = new Map(m); r.delete(mtId); return r; });
     } else {
-      this.api.getMultiTransactionDetail(mtId)
-        .then(d => {
-          this.expandedIds.update(s => { const n = new Set(s); n.add(mtId); return n; });
-          this.expandedDetailMap.update(m => { const r = new Map(m); r.set(mtId, d); return r; });
-        })
-        .catch(() => this.snackbar.open('Failed to load details', 'Close'));
+      this.expandedIds.update(s => { const n = new Set(s); n.add(mtId); return n; });
     }
   }
 
