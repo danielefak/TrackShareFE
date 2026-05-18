@@ -83,6 +83,10 @@ export class AuthService {
     return this.http.post<Profile>(`${this.apiUrl}/v1/profile/refresh-key`, {});
   }
 
+  recoverPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/v1/recover-password`, { email });
+  }
+
   checkAuthStatus(): void {
     const token = localStorage.getItem('access_token');
     if (!token) return;

@@ -22,6 +22,18 @@
       <button mat-flat-button color="primary" type="submit" class="submit-btn">Sign In</button>
     </form>
 
+    <div class="forgot-row">
+      <a (click)="showForgot = !showForgot" class="forgot-link">Forgot password?</a>
+    </div>
+
+    <div *ngIf="showForgot" class="forgot-box">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="forgotEmail" [ngModelOptions]="{standalone: true}" type="email" required>
+      </mat-form-field>
+      <button mat-stroked-button color="primary" (click)="recoverPassword()">Send Recovery Email</button>
+    </div>
+
     <p class="auth-footer">
       Don't have an account? <a routerLink="/signin">Create one</a>
     </p>

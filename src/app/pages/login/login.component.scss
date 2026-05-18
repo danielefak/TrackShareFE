@@ -61,6 +61,32 @@
   margin-top: 8px;
 }
 
+.forgot-row {
+  text-align: center;
+  margin: 12px 0;
+}
+
+.forgot-link {
+  font-size: 0.8125rem;
+  color: var(--mat-sys-primary);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+}
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.forgot-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-highest);
+  margin-bottom: 8px;
+}
+
 .auth-footer {
   text-align: center;
   margin: 24px 0 0;
