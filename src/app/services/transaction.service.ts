@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ENVIRONMENT } from '../environment';
 import { Observable } from 'rxjs';
-import { MultiTransactionCreate, MultiTransactionCreated, TransactionItemCreate, MultiTransactionUpdate, MultiTransactionDetailResponse } from '../models/transaction.model';
+import { MultiTransactionCreate, MultiTransactionCreated, TransactionItemCreate, MultiTransactionUpdate, MultiTransactionDetailResponse, OrderResponse } from '../models/transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,5 +31,25 @@ export class TransactionService {
 
   delete(mtId: number): Observable<{ deleted: number }> {
     return this.http.delete<{ deleted: number }>(`${this.apiUrl}/v1/transactions/${mtId}`);
+  }
+
+  getOrders(): Observable<OrderResponse[]> {
+    return this.http.get<OrderResponse[]>(`${this.apiUrl}/v1/orders`);
+  }
+
+  activateOrder(orderId: number): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(`${this.apiUrl}/v1/orders/${orderId}/activate`, {});
+  }
+
+  deleteOrder(orderId: number): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(`${this.apiUrl}/v1/orders/${orderId}`);
+  }
+
+  updateOrder(orderId: number, body: MultiTransactionUpdate): Observable<{ id: number }> {
+    return this.http.put<{ id: number }>(`${this.apiUrl}/v1/orders/${orderId}`, body);
+  }
+
+  activateDueOrders(): Observable<{ activated: { order_id: number; mt_id: number }[] }> {
+    return this.http.post<{ activated: { order_id: number; mt_id: number }[] }>(`${this.apiUrl}/v1/orders/activate-due`, {});
   }
 }

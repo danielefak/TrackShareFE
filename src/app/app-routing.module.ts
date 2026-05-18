@@ -18,6 +18,7 @@ const routes: Routes = [
       { path: 'categories', loadComponent: () => import('./pages/categories/categories.component').then(m => m.CategoriesComponent) },
       { path: 'attention', loadComponent: () => import('./pages/attention/attention.component').then(m => m.AttentionComponent) },
       { path: 'activity-history', loadComponent: () => import('./pages/activity-history/activity-history.component').then(m => m.ActivityHistoryComponent) },
+      { path: 'orders', loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent) },
       { path: 'logs', redirectTo: '/activity-history', pathMatch: 'full' },
       { path: '', redirectTo: '/home', pathMatch: 'full' }
     ]

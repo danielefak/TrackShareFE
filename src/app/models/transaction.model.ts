@@ -8,6 +8,7 @@ export interface MultiTransactionCreate {
   is_expense: number;
   account_id: number;
   value: number;
+  is_order?: boolean;
   items?: { account_id: number; value: number }[];
 }
 
@@ -29,6 +30,32 @@ export interface MultiTransactionUpdate {
   subcategory_id: number;
   is_expense: number;
   items: { account_id: number; value: number }[];
+}
+
+export interface OrderResponse {
+  id: number;
+  title: string;
+  date: string;
+  day: number;
+  month: number;
+  year: number;
+  value: number;
+  category_id: number;
+  category_name: string;
+  subcategory_id: number;
+  subcategory_name: string;
+  is_expense: number;
+  period1: string | null;
+  period2: string | null;
+  created_at: string | null;
+  items: OrderTransactionResponse[];
+}
+
+export interface OrderTransactionResponse {
+  id: number;
+  account_id: number;
+  account_name: string;
+  value: number;
 }
 
 export interface MultiTransactionDetailResponse {

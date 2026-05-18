@@ -69,6 +69,7 @@ export class SidebarComponent {
     { title: 'Accounts', icon: 'account_balance', route: '/accounts', action: () => this.closeSidenav() },
     { title: 'Categories', icon: 'category', route: '/categories', action: () => this.closeSidenav() },
     { title: 'Attention', icon: 'report_problem', route: '/attention', action: () => this.closeSidenav() },
+    { title: 'Orders', icon: 'receipt_long', route: '/orders', action: () => this.closeSidenav() },
     { title: 'About', icon: 'info', route: '/about', action: () => this.closeSidenav() },
     { title: 'Activity History', icon: 'history', route: '/activity-history', action: () => this.closeSidenav() },
     { title: 'Import/Export', icon: 'import_export', route: '/import-export', action: () => this.closeSidenav() },

@@ -16,10 +16,12 @@ import { RefreshService } from '../../services/refresh.service';
 import { Account } from '../../models/account.model';
 import { Category, SubCategory } from '../../models/category.model';
 import { CalculatorDialogComponent, CalculatorData, CalculatorResult } from './calculator-dialog.component';
+import { OrderResponse } from '../../models/transaction.model';
 
 export interface AddTransactionData {
   transactionId?: number;
   duplicateOf?: number;
+  orderData?: OrderResponse;
 }
 
 @Component({
@@ -30,7 +32,7 @@ export interface AddTransactionData {
     MatSelectModule, MatButtonModule, MatDialogModule, MatSnackBarModule, MatIconModule, MatDatepickerModule,
   ],
   template: `
-    <h2 mat-dialog-title>{{ isEdit() ? 'Edit Transaction' : 'New Transaction' }}</h2>
+    <h2 mat-dialog-title>{{ isEditOrder() ? 'Edit Order' : isEdit() ? 'Edit Transaction' : 'New Transaction' }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form">
         <div class="type-toggle">
@@ -56,6 +58,10 @@ export interface AddTransactionData {
           <button type="button" class="split-toggle" (click)="toggleSplit()">
             <mat-icon>{{ splitEnabled() ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
             Split over months
+          </button>
+          <button type="button" class="split-toggle order-toggle" [class.active]="isOrder()" (click)="toggleOrder()">
+            <mat-icon>{{ isOrder() ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            Is order
           </button>
         } @else if (!isSplit()) {
           <button type="button" class="split-toggle" (click)="toggleSplit()">
@@ -176,6 +182,8 @@ export interface AddTransactionData {
 
     .split-toggle { display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; border:2px solid var(--mat-sys-outline-variant); background:transparent; cursor:pointer; font-size:.82rem; font-weight:500; color:var(--mat-sys-on-surface-variant); margin-bottom:12px; transition:all .15s; width:100%; }
     .split-toggle:hover { border-color:var(--mat-sys-primary); color:var(--mat-sys-primary); }
+    .order-toggle.active { border-color:#e67e22; background:#fef3e2; color:#e67e22; }
+    .order-toggle.active .mat-icon { color:#e67e22; }
     .split-toggle .mat-icon { font-size:18px; width:18px; height:18px; }
     .split-block { margin-bottom:12px; }
     .split-row { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
@@ -245,9 +253,11 @@ export class AddTransactionDialogComponent {
   saving = signal(false);
   editId = signal(this.data?.transactionId ?? this.data?.duplicateOf ?? 0);
   isEdit = signal(!!this.data?.transactionId && !this.data?.duplicateOf);
+  isEditOrder = signal(!!this.data?.orderData);
   accounts = signal<Account[]>([]);
   allCategories = signal<Category[]>([]);
   splitEnabled = signal(false);
+  isOrder = signal(false);
 
   sfMonth = signal(new Date().getMonth() + 1);
   sfYear = signal(new Date().getFullYear());
@@ -307,7 +317,8 @@ export class AddTransactionDialogComponent {
         if (tc) this.form.patchValue({ category_id: tc.id, subcategory_id: tc.subcategories[0]?.id ?? tc.id });
       }
     });
-    if (this.editId()) this.loadTransaction(this.editId());
+    if (this.data?.orderData) this.loadOrder(this.data.orderData);
+    else if (this.editId()) this.loadTransaction(this.editId());
     this.recalcTotal();
   }
 
@@ -328,6 +339,40 @@ export class AddTransactionDialogComponent {
 
   getItemValue(i: number): number {
     return this.items.at(i)?.get('value')?.value || 0;
+  }
+
+  private loadOrder(o: OrderResponse) {
+    if (o.date) {
+      const p = o.date.split('-');
+      this.dateCtrl.setValue(new Date(+p[0], +p[1] - 1, +p[2]));
+    }
+    this.isOrder.set(true);
+    this.form.patchValue({
+      is_expense: o.is_expense,
+      title: o.title,
+      period1: o.period1 ? o.period1.slice(0, 7) + '-01' : null,
+      period2: o.period2 ? o.period2.slice(0, 7) + '-01' : null,
+    });
+    const p1m = parseInt(o.period1?.slice(5, 7) ?? '0');
+    const p1y = parseInt(o.period1?.slice(0, 4) ?? '0');
+    const p2m = parseInt(o.period2?.slice(5, 7) ?? '0');
+    const p2y = parseInt(o.period2?.slice(0, 4) ?? '0');
+    if (p1m && p1y) { this.sfMonth.set(p1m); this.sfYear.set(p1y); }
+    if (p2m && p2y) { this.stMonth.set(p2m); this.stYear.set(p2y); }
+    if (o.period1?.slice(0, 7) !== o.period2?.slice(0, 7)) this.splitEnabled.set(true);
+    setTimeout(() => {
+      this.form.patchValue({ category_id: o.category_id, subcategory_id: o.subcategory_id || o.category_id });
+    });
+    while (this.items.length) this.items.removeAt(0);
+    for (const t of o.items) {
+      const neg = t.value < 0;
+      this.items.push(this.fb.group({
+        account_id: [t.account_id, Validators.required],
+        value: [Math.abs(t.value), [Validators.required, Validators.min(0.01)]],
+        is_negative: [neg],
+      }));
+    }
+    this.recalcTotal();
   }
 
   private loadTransaction(id: number) {
@@ -419,9 +464,37 @@ export class AddTransactionDialogComponent {
     c?.setValue(!c?.value);
   }
 
+  private updateOrder() {
+    this.saving.set(true);
+    const r = this.form.getRawValue();
+    const items = (r.items || []) as any[];
+    const signed = items.map((x: any) => ({ account_id: x.account_id!, value: (x.value || 0) * (x.is_negative ? -1 : 1) }));
+    const p1 = r.period1 ?? (r.date ? r.date.slice(0, 7) + '-01' : undefined);
+    const p2 = r.period2 ?? (r.date ? r.date.slice(0, 7) + '-01' : undefined);
+    this.transactionService.updateOrder(this.data.orderData!.id, {
+      title: r.title!,
+      date: r.date!,
+      period1: p1,
+      period2: p2,
+      category_id: r.category_id!,
+      subcategory_id: r.subcategory_id ?? r.category_id!,
+      is_expense: r.is_expense!,
+      items: signed,
+    }).subscribe({
+      next: () => {
+        this.snackbar.open('Order updated', 'Close', { duration: 2000, verticalPosition: 'top' });
+        this.refreshService.triggerTransactions();
+        this.dialogRef.close(true);
+      },
+      error: (e) => { this.saving.set(false); this.snackbar.open(e.error?.detail || 'Failed', 'Close', { duration: 3000, verticalPosition: 'top' }); },
+    });
+  }
+
   save() {
     if (this.form.invalid) return;
-    this.isEdit() ? this.update() : this.create();
+    if (this.isEditOrder()) this.updateOrder();
+    else if (this.isEdit()) this.update();
+    else this.create();
   }
 
   toggleSplit() {
@@ -432,6 +505,10 @@ export class AddTransactionDialogComponent {
     this.sfMonth.set(m); this.sfYear.set(y);
     this.stMonth.set(m); this.stYear.set(y);
     this.form.patchValue({ period1: d.slice(0, 7) + '-01', period2: d.slice(0, 7) + '-01' });
+  }
+
+  toggleOrder() {
+    this.isOrder.update(v => !v);
   }
 
   setFromMonth(m: number) {
@@ -456,7 +533,7 @@ export class AddTransactionDialogComponent {
     const r = this.form.getRawValue();
     const p1 = this.splitEnabled() ? (r.period1 ?? undefined) : (r.date ? r.date.slice(0, 7) + '-01' : undefined);
     const p2 = this.splitEnabled() ? (r.period2 ?? undefined) : (r.date ? r.date.slice(0, 7) + '-01' : undefined);
-    const h: any = { title: r.title!, date: r.date!, period1: p1, period2: p2, category_id: r.category_id!, subcategory_id: r.subcategory_id ?? r.category_id!, is_expense: r.is_expense! };
+    const h: any = { title: r.title!, date: r.date!, period1: p1, period2: p2, category_id: r.category_id!, subcategory_id: r.subcategory_id ?? r.category_id!, is_expense: r.is_expense!, is_order: this.isOrder() };
     const items = (r.items || []) as any[];
     if (!items.length) { this.saving.set(false); return; }
     const signed = (x: any) => ({ account_id: x.account_id!, value: (x.value || 0) * (x.is_negative ? -1 : 1) });

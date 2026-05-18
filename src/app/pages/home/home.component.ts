@@ -124,11 +124,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.loadAccounts();
-    this.loadAll();
     this.refresh.transactions$.subscribe(() => this.loadAll());
     this.route.queryParams.subscribe(p => {
       if (p['edit']) this.onEditTransaction(+p['edit']);
     });
+    this.transactionService.activateDueOrders().subscribe({ next: () => this.loadAll() });
   }
 
   loadAccounts() {
@@ -226,18 +226,21 @@ export class HomeComponent implements OnInit {
   }
 
   onDayClick(ids: number[]) {
-    for (const id of ids) {
-      if (this.expandedIds().has(id)) {
-        this.expandedIds.update(s => { const n = new Set(s); n.delete(id); return n; });
-        this.expandedDetailMap.update(m => { const r = new Map(m); r.delete(id); return r; });
-      } else {
-        this.api.getMultiTransactionDetail(id)
-          .then(d => {
-            this.expandedIds.update(s => { const n = new Set(s); n.add(id); return n; });
-            this.expandedDetailMap.update(m => { const r = new Map(m); r.set(id, d); return r; });
-          })
-          .catch(() => this.snackbar.open('Failed to load details', 'Close'));
-      }
+    const anyExpanded = ids.some(id => this.expandedIds().has(id));
+    if (anyExpanded) {
+      this.expandedIds.update(s => { const n = new Set(s); ids.forEach(id => n.delete(id)); return n; });
+      this.expandedDetailMap.update(m => { const r = new Map(m); ids.forEach(id => r.delete(id)); return r; });
+    } else {
+      Promise.all(ids.map(id => this.api.getMultiTransactionDetail(id)))
+        .then(details => {
+          this.expandedIds.update(s => { const n = new Set(s); ids.forEach(id => n.add(id)); return n; });
+          this.expandedDetailMap.update(m => {
+            const r = new Map(m);
+            ids.forEach((id, i) => r.set(id, details[i]));
+            return r;
+          });
+        })
+        .catch(() => this.snackbar.open('Failed to load details', 'Close'));
     }
   }
 

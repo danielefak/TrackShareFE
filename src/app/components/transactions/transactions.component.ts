@@ -64,8 +64,8 @@ import { MatIconModule } from '@angular/material/icon';
                   </div>
                   <div class="day-items">
                     @for (item of day.value.items; track item.id) {
-                      <div>
-                          <div class="transaction-item" [class.is-income]="item.balance >= 0" [class.is-expense]="item.balance < 0" [class.is-expanded]="expandedIds.has(item.id)" (click)="itemClick.emit(item.id)">
+                      <div [class.is-income]="item.balance >= 0" [class.is-expense]="item.balance < 0">
+                          <div class="transaction-item" [class.is-expanded]="expandedIds.has(item.id)" (click)="itemClick.emit(item.id)">
                             <div class="item-accent"></div>
                             <div class="item-body">
                               <span class="item-title">{{ item.title }}</span>
@@ -82,14 +82,15 @@ import { MatIconModule } from '@angular/material/icon';
                         @if (expandedIds.has(item.id)) {
                           @if (expandedDetailMap.get(item.id); as detail) {
                           <div class="expand-detail">
+                            <div class="expand-accent"></div>
                             <div class="detail-header">
-                              <div class="detail-title">{{ detail.title }}</div>
                               <div class="detail-actions">
                                 <button class="da-btn" (click)="$event.stopPropagation(); editItem.emit(item.id)" title="Edit"><mat-icon>edit</mat-icon></button>
                                 <button class="da-btn" (click)="$event.stopPropagation(); duplicateItem.emit(item.id)" title="Duplicate"><mat-icon>content_copy</mat-icon></button>
                                 <button class="da-btn da-del" (click)="$event.stopPropagation(); deleteItem.emit(item.id)" title="Delete"><mat-icon>delete</mat-icon></button>
                               </div>
                             </div>
+                            <div class="detail-sep"></div>
                             @if (detail.period1.slice(0,7) !== detail.period2.slice(0,7)) {
                               <div class="detail-period">
                                 <mat-icon>date_range</mat-icon>
@@ -120,6 +121,24 @@ import { MatIconModule } from '@angular/material/icon';
     }
   `,
   styles: [`
+    .overall-summary-bar {
+      display:flex; align-items:center; padding:10px 16px;
+      border:1px solid var(--mat-sys-outline-variant); border-radius:10px;
+      background:var(--mat-sys-surface); margin-bottom:12px;
+    }
+    .summary-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:0; }
+    .summary-item + .summary-item { border-left:1px solid var(--mat-sys-outline-variant); padding-left:16px; margin-left:16px; }
+    .summary-label { font-size:.6rem; text-transform:uppercase; letter-spacing:.06em; color:var(--mat-sys-on-surface-variant); }
+    .detail-actions { display:flex; gap:2px; }
+    .da-btn {
+      background:none; border:none; cursor:pointer; width:26px; height:26px; border-radius:5px;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--mat-sys-on-surface-variant); transition:background .15s;
+    }
+    .da-btn:hover { background:var(--mat-sys-surface-container-high); color:var(--mat-sys-primary); }
+    .da-btn.da-del:hover { color:var(--mat-sys-error); }
+    .da-btn .mat-icon { font-size:16px; width:16px; height:16px; }
+
     .transactions-list {
       display: flex;
       flex-direction: column;
@@ -244,19 +263,17 @@ import { MatIconModule } from '@angular/material/icon';
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 12px;
+      padding: 12px 14px;
       background: var(--mat-sys-surface-container-high);
       border-radius: 10px 10px 0 0;
       position: relative;
       overflow: hidden;
-      transition: box-shadow 0.15s ease, transform 0.15s ease;
-      animation: slideIn 0.3s ease both;
+      transition: box-shadow 0.15s ease;
       cursor: pointer;
     }
 
     .transaction-item:hover {
       box-shadow: var(--mat-sys-level2);
-      transform: translateX(3px);
     }
 
     .transaction-item.is-expanded {
@@ -275,34 +292,25 @@ import { MatIconModule } from '@angular/material/icon';
     .expand-detail {
       background: var(--mat-sys-surface-container);
       border-radius: 0 0 10px 10px;
-      padding: 8px 12px 10px 46px;
+      padding: 8px 12px 22px 18px;
       border-top: 1px solid var(--mat-sys-outline-variant);
-      animation: slideIn 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
+    .expand-accent {
+      position: absolute; left:0; top:0; height:100%; width:4px;
+      border-radius:0 2px 2px 0;
+    }
+    .is-income .expand-accent { background:#22bb33; }
+    .is-expense .expand-accent { background:var(--mat-sys-error); }
+    .detail-sep { height:1px; background:var(--mat-sys-outline-variant); margin:6px 0; }
 
     .detail-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       margin-bottom: 6px;
     }
-
-    .detail-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--mat-sys-on-surface-variant);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .detail-actions { display:flex; gap:2px; }
-    .da-btn { background:none; border:none; cursor:pointer; width:26px; height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center; color:var(--mat-sys-on-surface-variant); transition:background .15s; }
-    .da-btn:hover { background:var(--mat-sys-surface-container-high); color:var(--mat-sys-primary); }
-    .da-btn.da-del:hover { color:var(--mat-sys-error); }
-    .da-btn .mat-icon { font-size:16px; width:16px; height:16px; }
-
-    .detail-period { display:flex; align-items:center; gap:4px; font-size:.72rem; color:var(--mat-sys-on-surface-variant); margin-bottom:6px; }
-    .detail-total { margin-left:auto; font-weight:700; color:var(--mat-sys-on-surface); }
 
     .detail-row {
       display: flex;
@@ -328,7 +336,6 @@ import { MatIconModule } from '@angular/material/icon';
       height: 100%;
       width: 4px;
       border-radius: 0 2px 2px 0;
-      transition: width 0.2s ease;
     }
 
     .is-income .item-accent {
@@ -339,9 +346,6 @@ import { MatIconModule } from '@angular/material/icon';
       background: var(--mat-sys-error);
     }
 
-    .transaction-item:hover .item-accent {
-      width: 5px;
-    }
 
     .item-body {
       flex: 1;
@@ -378,42 +382,6 @@ import { MatIconModule } from '@angular/material/icon';
       min-width: 80px;
     }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .overall-summary-bar {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      padding: 14px 20px;
-      background: var(--mat-sys-surface-container-high);
-      border-radius: 12px;
-      margin-bottom: 12px;
-      border: 1px solid var(--mat-sys-outline-variant);
-    }
-
-    .summary-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .summary-label {
-      font-size: 0.65rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--mat-sys-on-surface-variant);
-    }
-
     .summary-value {
       font-weight: 700;
       font-size: 0.95rem;
@@ -443,7 +411,7 @@ import { MatIconModule } from '@angular/material/icon';
       }
 
       .transaction-item {
-        padding: 8px 10px;
+        padding: 10px 12px;
       }
 
       .item-title {
