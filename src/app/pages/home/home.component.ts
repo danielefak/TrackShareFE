@@ -237,6 +237,11 @@ export class HomeComponent implements OnInit {
       this.expandedIds.update(s => { const n = new Set(s); n.delete(mtId); return n; });
     } else {
       this.expandedIds.update(s => { const n = new Set(s); n.add(mtId); return n; });
+      if (!this.expandedDetailMap().has(mtId)) {
+        this.api.getMultiTransactionDetail(mtId).then(d => {
+          this.expandedDetailMap.update(m => { const r = new Map(m); r.set(mtId, d); return r; });
+        });
+      }
     }
   }
 
