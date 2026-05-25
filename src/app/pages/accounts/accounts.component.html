@@ -88,5 +88,30 @@
         }
       </div>
     }
+
+    @if (deletedAccounts().length > 0) {
+      <div class="deleted-section">
+        <div class="deleted-header" (click)="showDeleted.set(!showDeleted())" role="button" tabindex="0">
+          <mat-icon class="chevron">{{ showDeleted() ? 'expand_more' : 'chevron_right' }}</mat-icon>
+          <span>Deleted Accounts</span>
+          <span class="deleted-count">{{ deletedAccounts().length }}</span>
+        </div>
+        @if (showDeleted()) {
+          <div class="deleted-list">
+            @for (account of deletedAccounts(); track account.id) {
+              <div class="deleted-card">
+                <div class="deleted-card-header">
+                  <mat-icon class="acc-type-icon">account_balance</mat-icon>
+                  <span class="deleted-name">{{ account.name }}</span>
+                  <button mat-stroked-button color="primary" (click)="restoreAccount(account)" class="restore-btn">
+                    <mat-icon>restore</mat-icon> Restore
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
   }
 </div>

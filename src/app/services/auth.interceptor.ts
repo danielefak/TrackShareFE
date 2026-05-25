@@ -1,9 +1,10 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from './api.auth.service';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
   const token = localStorage.getItem('access_token');
   if (token) {
     req = req.clone({
@@ -14,7 +15,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err) => {
       if (err instanceof HttpErrorResponse && err.status === 401) {
         localStorage.removeItem('access_token');
-        window.location.href = '/login';
+        router.navigate(['/login']);
       }
       return throwError(() => err);
     })

@@ -40,6 +40,8 @@ export class AccountsComponent implements OnInit {
   private snackbar = inject(MatSnackBar);
 
   accounts = signal<Account[]>([]);
+  deletedAccounts = signal<Account[]>([]);
+  showDeleted = signal(false);
   loading = signal(true);
   chartLoading = signal(false);
   selectedIds = signal<Set<number>>(new Set());
@@ -80,7 +82,8 @@ export class AccountsComponent implements OnInit {
 
   ngOnInit() {
     this.loadAccounts();
-    this.refresh.transactions$.subscribe(() => this.loadAccounts());
+    this.loadDeletedAccounts();
+    this.refresh.transactions$.subscribe(() => { this.loadAccounts(); this.loadDeletedAccounts(); });
   }
 
   loadAccounts() {
@@ -98,6 +101,23 @@ export class AccountsComponent implements OnInit {
         this.snackbar.open('Failed to load accounts', 'Close', { verticalPosition: 'top' });
         this.loading.set(false);
       },
+    });
+  }
+
+  loadDeletedAccounts() {
+    this.accountService.getDeleted().subscribe({
+      next: (data) => this.deletedAccounts.set(data),
+    });
+  }
+
+  restoreAccount(account: Account) {
+    this.accountService.restore(account.id).subscribe({
+      next: () => {
+        this.snackbar.open('Account restored', 'Close', { verticalPosition: 'top' });
+        this.loadAccounts();
+        this.loadDeletedAccounts();
+      },
+      error: () => this.snackbar.open('Failed to restore account', 'Close', { verticalPosition: 'top' }),
     });
   }
 

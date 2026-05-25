@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -100,6 +100,54 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
                 }
               </div>
             }
+            @if (deletedExpenseCategories().length > 0 || deletedExpenseSubs().length > 0) {
+              <div class="deleted-section">
+                <div class="deleted-header" (click)="showDeleted.set(!showDeleted())" role="button" tabindex="0">
+                  <mat-icon class="chevron">{{ showDeleted() ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  <span>Deleted</span>
+                  <span class="deleted-count">{{ deletedExpenseCategories().length + deletedExpenseSubs().length }}</span>
+                </div>
+                @if (showDeleted()) {
+                  <div class="deleted-list">
+                    @for (cat of deletedExpenseCategories(); track cat.id) {
+                      <div class="deleted-card">
+                        <div class="deleted-card-header">
+                          <span class="deleted-label">Category</span>
+                          <span class="deleted-name">{{ cat.name }}</span>
+                          <button mat-stroked-button color="primary" (click)="restoreCategory(cat)" class="restore-btn">
+                            <mat-icon>restore</mat-icon> Restore
+                          </button>
+                        </div>
+                        @if (cat.subcategories.length > 0) {
+                          <div class="deleted-subs">
+                            @for (sub of cat.subcategories; track sub.id) {
+                              <div class="deleted-sub-item">
+                                <span class="deleted-sub-label">Subcategory of {{ cat.name }}</span>
+                                <span class="deleted-name">{{ sub.name }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                  @if (deletedExpenseSubs().length > 0) {
+                    <div class="deleted-subs-section">
+                      <div class="deleted-subs-title">Subcategories</div>
+                      @for (sub of deletedExpenseSubs(); track sub.id) {
+                        <div class="deleted-sub-entry">
+                          <span class="deleted-name">{{ sub.name }}</span>
+                          <span class="deleted-cat-ref">of {{ sub.category_name }}</span>
+                          <button mat-stroked-button color="primary" (click)="restoreSubcategory(sub)" class="restore-btn">
+                            <mat-icon>restore</mat-icon> Restore
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            }
           </mat-tab>
           <mat-tab label="Income">
             @if (incomeCategories().length === 0) {
@@ -151,6 +199,54 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
                       </div>
                     }
                   </div>
+                }
+              </div>
+            }
+            @if (deletedIncomeCategories().length > 0 || deletedIncomeSubs().length > 0) {
+              <div class="deleted-section">
+                <div class="deleted-header" (click)="showDeleted.set(!showDeleted())" role="button" tabindex="0">
+                  <mat-icon class="chevron">{{ showDeleted() ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  <span>Deleted</span>
+                  <span class="deleted-count">{{ deletedIncomeCategories().length + deletedIncomeSubs().length }}</span>
+                </div>
+                @if (showDeleted()) {
+                  <div class="deleted-list">
+                    @for (cat of deletedIncomeCategories(); track cat.id) {
+                      <div class="deleted-card">
+                        <div class="deleted-card-header">
+                          <span class="deleted-label">Category</span>
+                          <span class="deleted-name">{{ cat.name }}</span>
+                          <button mat-stroked-button color="primary" (click)="restoreCategory(cat)" class="restore-btn">
+                            <mat-icon>restore</mat-icon> Restore
+                          </button>
+                        </div>
+                        @if (cat.subcategories.length > 0) {
+                          <div class="deleted-subs">
+                            @for (sub of cat.subcategories; track sub.id) {
+                              <div class="deleted-sub-item">
+                                <span class="deleted-sub-label">Subcategory of {{ cat.name }}</span>
+                                <span class="deleted-name">{{ sub.name }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                  @if (deletedIncomeSubs().length > 0) {
+                    <div class="deleted-subs-section">
+                      <div class="deleted-subs-title">Subcategories</div>
+                      @for (sub of deletedIncomeSubs(); track sub.id) {
+                        <div class="deleted-sub-entry">
+                          <span class="deleted-name">{{ sub.name }}</span>
+                          <span class="deleted-cat-ref">of {{ sub.category_name }}</span>
+                          <button mat-stroked-button color="primary" (click)="restoreSubcategory(sub)" class="restore-btn">
+                            <mat-icon>restore</mat-icon> Restore
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
                 }
               </div>
             }
@@ -346,6 +442,165 @@ import { AddSubcategoryDialogComponent } from './add-subcategory-dialog.componen
       line-height: 16px;
     }
 
+    .deleted-section {
+      margin-top: 24px;
+      border-top: 1px solid var(--mat-sys-outline-variant);
+      padding-top: 12px;
+    }
+
+    .deleted-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 4px;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface-variant);
+      user-select: none;
+    }
+
+    .deleted-header:hover {
+      background: var(--mat-sys-surface-container-highest);
+    }
+
+    .deleted-header .chevron {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--mat-sys-on-surface-variant);
+      flex-shrink: 0;
+    }
+
+    .deleted-count {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--mat-sys-on-surface-variant);
+      background: var(--mat-sys-surface-container);
+      padding: 2px 8px;
+      border-radius: 10px;
+      line-height: 1.4;
+    }
+
+    .deleted-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .deleted-card {
+      background: var(--mat-sys-surface-container-high);
+      border: 1px dashed var(--mat-sys-outline-variant);
+      border-radius: 12px;
+      overflow: hidden;
+      opacity: 0.7;
+    }
+
+    .deleted-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      min-width: 0;
+    }
+
+    .deleted-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--mat-sys-on-surface);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .restore-btn {
+      flex-shrink: 0;
+      line-height: 1;
+      font-size: 0.8rem;
+      padding: 0 12px;
+    }
+
+    .restore-btn .mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      margin-right: 2px;
+    }
+
+    .deleted-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--mat-sys-primary);
+      flex-shrink: 0;
+      background: var(--mat-sys-primary-container);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .deleted-subs {
+      border-top: 1px solid var(--mat-sys-outline-variant);
+      padding: 4px 0;
+    }
+
+    .deleted-sub-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px 6px 18px;
+    }
+
+    .deleted-sub-label {
+      font-size: 0.7rem;
+      color: var(--mat-sys-on-surface-variant);
+      flex-shrink: 0;
+    }
+
+    .deleted-subs-section {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--mat-sys-outline-variant);
+    }
+
+    .deleted-subs-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--mat-sys-on-surface-variant);
+      padding: 0 14px 6px;
+    }
+
+    .deleted-sub-entry {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      transition: background 0.1s;
+    }
+
+    .deleted-sub-entry:hover {
+      background: var(--mat-sys-surface-container);
+    }
+
+    .deleted-sub-entry .deleted-name {
+      font-size: 0.82rem;
+    }
+
+    .deleted-cat-ref {
+      font-size: 0.7rem;
+      color: var(--mat-sys-on-surface-variant);
+      flex-shrink: 0;
+    }
+
+    .deleted-sub-entry .restore-btn {
+      margin-left: auto;
+    }
+
     @media (max-width: 600px) {
       .page-header {
         flex-direction: column;
@@ -371,6 +626,12 @@ export class CategoriesComponent implements OnInit {
 
   expenseCategories = signal<Category[]>([]);
   incomeCategories = signal<Category[]>([]);
+  deletedExpenseCategories = signal<Category[]>([]);
+  deletedIncomeCategories = signal<Category[]>([]);
+  deletedSubcategories = signal<any[]>([]);
+  deletedExpenseSubs = computed(() => this.deletedSubcategories().filter(s => s.is_expense == 0));
+  deletedIncomeSubs = computed(() => this.deletedSubcategories().filter(s => s.is_expense == 2));
+  showDeleted = signal(false);
   loading = signal(true);
   activeTab = signal(0);
   expanded = signal<Set<number>>(new Set());
@@ -385,6 +646,7 @@ export class CategoriesComponent implements OnInit {
 
   ngOnInit() {
     this.loadAll();
+    this.loadDeletedCategories();
   }
 
   loadAll() {
@@ -398,11 +660,55 @@ export class CategoriesComponent implements OnInit {
           data.filter((c) => c.is_expense === 2 && !c.default).sort((a, b) => a.order - b.order)
         );
         this.loading.set(false);
+        this.loadDeletedSubcategories();
       },
       error: () => {
         this.snackbar.open('Failed to load categories', 'Close', { verticalPosition: 'top' });
         this.loading.set(false);
       },
+    });
+  }
+
+  loadDeletedCategories() {
+    this.categoryService.getDeleted('all').subscribe({
+      next: (data) => {
+        this.deletedExpenseCategories.set(
+          data.filter((c) => c.is_expense === 0 && !c.default).sort((a, b) => a.order - b.order)
+        );
+        this.deletedIncomeCategories.set(
+          data.filter((c) => c.is_expense === 2 && !c.default).sort((a, b) => a.order - b.order)
+        );
+      },
+    });
+  }
+
+  loadDeletedSubcategories() {
+    this.categoryService.getDeletedSubcategories().subscribe({
+      next: (data) => this.deletedSubcategories.set(data),
+      error: (e) => this.snackbar.open('Failed to load deleted items', 'Close', { verticalPosition: 'top' }),
+    });
+  }
+
+  restoreSubcategory(sub: any) {
+    this.categoryService.restoreSubcategory(sub.id).subscribe({
+      next: () => {
+        this.snackbar.open('Subcategory restored', 'Close', { verticalPosition: 'top' });
+        this.loadAll();
+        this.loadDeletedSubcategories();
+      },
+      error: () => this.snackbar.open('Failed to restore subcategory', 'Close', { verticalPosition: 'top' }),
+    });
+  }
+
+  restoreCategory(cat: Category) {
+    this.categoryService.restore(cat.id).subscribe({
+      next: () => {
+        this.snackbar.open('Category restored', 'Close', { verticalPosition: 'top' });
+        this.loadAll();
+        this.loadDeletedCategories();
+        this.loadDeletedSubcategories();
+      },
+      error: () => this.snackbar.open('Failed to restore category', 'Close', { verticalPosition: 'top' }),
     });
   }
 

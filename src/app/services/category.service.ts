@@ -45,4 +45,21 @@ export class CategoryService {
   deleteSubcategory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/v1/subcategories/${id}`);
   }
+
+  getDeleted(type?: 'expense' | 'income' | 'all'): Observable<Category[]> {
+    const params = type ? `?type=${type}` : '';
+    return this.http.get<Category[]>(`${this.apiUrl}/v1/categories/deleted${params}`);
+  }
+
+  restore(id: number): Observable<Category> {
+    return this.http.post<Category>(`${this.apiUrl}/v1/categories/${id}/restore`, {});
+  }
+
+  getDeletedSubcategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/v1/subcategories/deleted`);
+  }
+
+  restoreSubcategory(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/v1/subcategories/${id}/restore`, {});
+  }
 }

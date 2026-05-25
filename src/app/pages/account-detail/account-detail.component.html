@@ -16,21 +16,35 @@
           <h1>{{ acc.name }}</h1>
           <p class="hero-subtitle">Initial balance: €{{ acc.initial_balance | number:'1.2-2' }}</p>
         </div>
-        <div class="hero-balance" [class.positive]="acc.balance >= 0" [class.negative]="acc.balance < 0">
-          €{{ acc.balance | number:'1.2-2' }}
+        <div class="hero-right">
+          <div class="hero-balance" [class.positive]="acc.balance >= 0" [class.negative]="acc.balance < 0">
+            €{{ acc.balance | number:'1.2-2' }}
+          </div>
+          <button mat-stroked-button (click)="openEditDialog(acc)" class="edit-btn">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
         </div>
       </div>
     </div>
 
     <section class="transactions-section">
-      <h2>Transactions</h2>
+      <div class="section-header">
+        <h2>Transactions</h2>
+        <span class="item-count">{{ totalCount() }} total</span>
+      </div>
 
-      @if (acc.transactions.length === 0) {
+      <div class="period-line">
+        <button mat-icon-button (click)="navMonth(-1)" matTooltip="Previous month"><mat-icon>chevron_left</mat-icon></button>
+        <span class="period-label">{{ periodLabel() }}</span>
+        <button mat-icon-button (click)="navMonth(1)" matTooltip="Next month"><mat-icon>chevron_right</mat-icon></button>
+      </div>
+
+      @if (acc.transactions && acc.transactions.length === 0) {
         <div class="empty-state">
           <mat-icon class="empty-icon">receipt_long</mat-icon>
-          <p>No transactions for this account.</p>
+          <p>No transactions for this period.</p>
         </div>
-      } @else {
+      } @else if (acc.transactions) {
         <div class="tx-list">
           @for (tx of acc.transactions; track tx.id) {
             <div class="tx-item" [class.is-income]="tx.value >= 0" [class.is-expense]="tx.value < 0">
@@ -46,6 +60,16 @@
             </div>
           }
         </div>
+
+        <mat-paginator
+          [length]="totalCount()"
+          [pageSize]="perPage()"
+          [pageIndex]="page()"
+          [pageSizeOptions]="[25, 50, 100]"
+          [showFirstLastButtons]="true"
+          (page)="onPageChange($event)"
+          aria-label="Transactions page">
+        </mat-paginator>
       }
     </section>
   }
